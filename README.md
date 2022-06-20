@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 21:58:59
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-20 22:24:49
+ * @LastEditTime: 2022-06-20 23:46:53
 -->
 # 语法分析
 
@@ -11,4 +11,6 @@
 + 项目地址：[https://github.com/LetMeFly666/SyntaxAnalysis](https://github.com/LetMeFly666/SyntaxAnalysis)
 + 在线文档：[https://yffx.letmefly.xyz](https://yffx.letmefly.xyz) (语法分析.letmefly.xyz)
 + DFA可视化：使用[mermiad](https://github.com/mermaid-js/mermaid)
-+ 网页使用[BootStrap](https://www.bootcss.com/)美化
++ 网页使用[BootStrap](https://www.bootcss.com/)布局、使用jQuery
+
+文法和待匹配串中的空格会自动忽略
