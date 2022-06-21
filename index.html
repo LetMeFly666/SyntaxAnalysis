@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 22:21:32
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-20 23:58:00
+ * @LastEditTime: 2022-06-21 12:16:34
 -->
 <!DOCTYPE html>
 <html>
@@ -56,10 +56,12 @@
         <div class="row" style="margin-top: 50px;">
             <div class="col-sm-3"></div>
             <div class="col-sm-6">
-                <button class="btn btn-primary" style="width: 100%;"><h4>开始分析</h4></button>
+                <button class="btn btn-primary" style="width: 100%;" onclick="analysis()"><h4>开始分析</h4></button>
             </div>
             <div class="col-sm-3"></div>
         </div>
+
+        <div id="process"></div>
     </div>
 
     <div class="beforeFooter" id="beforeFooter"></div>
@@ -69,10 +71,10 @@
                 <div class="col-sm-6">项目地址: <a href="https://github.com/LetMeFly666/SyntaxAnalysis" target="blank">https://github.com/LetMeFly666/SyntaxAnalysis</a></div>
                 <div class="col-sm-6">在线文档：<a href="https://yffx.letmefly.xyz" target="blank">https://yffx.letmefly.xyz (语法分析.letmefly.xyz)</a></div>
             </div>
-            <div class="row">
-                <div class="col-sm-4">DFA可视化：<a href="https://github.com/mermaid-js/mermaid" target="blank">mermiad</a></div>
-                <div class="col-sm-4">网页使用<a href="https://www.bootcss.com" target="blank">BootStrap</a>布局</div>
-                <div class="col-sm-4">With：<a href="https://jquery.com" target="blank">jQuery</a></div>
+            <div class="row" style="text-align: center;">
+                <span>DFA可视化：<a href="https://github.com/mermaid-js/mermaid" target="blank">mermiad</a> </span>
+                <span>网页使用<a href="https://www.bootcss.com" target="blank">BootStrap</a>布局 </span>
+                <span>使用 <a href="https://jquery.com" target="blank">jQuery</a></span>
             </div>
             <div class="row" style="text-align: center;">
                 Copyright 2022 ©<a href="https://letmefly.xyz">LetMeFly</a> all rights reserved.
@@ -86,14 +88,30 @@
         const grammarInput = $("#GrammarInput");
         const stringInput = $("#stringInput");
 
+        function getChoosedGrammar() {  // 获取选择的语法
+            for (var i = 0; i < grammars.length; i++) {
+                if (grammars[i].checked) {
+                    return grammars[i].value;
+                }
+            }
+        }
+
         function choose1grammar() {  // 选择一个文法
-            grammarInput[0].placeholder = samples[this.value].grammar + "\n\n-------------------------------------------------\n空格可作为分隔符，不可作为终结符\n“->”作为推导符号\n“|”代表“或”\n“ε”代表“空”";
-            stringInput[0].placeholder = samples[this.value].string;
+            grammarInput[0].placeholder = grammarSamples[this.value].grammar + "\n----------------------------------------\n空格可作为分隔符，不可作为终结符\n“|”代表“或”\n“ε”代表“空”\n“->”作为推导符号\n“->”左边出现过的为非终结符，其余未提到的为终结符";
+            stringInput[0].placeholder = grammarSamples[this.value].string;
         };
 
         function adjustFooter() {  // 调整底部距离
             const height = $("#footer").height();
             $("#beforeFooter").height(height);
+        }
+
+        function analysis() {  // 分析
+            if (!grammarInput.val()) {
+                grammarInput.val(grammarSamples[getChoosedGrammar()].grammar);
+            }
+            const NT = getNT(grammarInput.val());
+            console.log(NT);
         }
 
         $(() => {  // Onload
