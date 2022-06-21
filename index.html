@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 22:21:32
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-21 12:16:34
+ * @LastEditTime: 2022-06-21 13:55:55
 -->
 <!DOCTYPE html>
 <html>
@@ -61,7 +61,7 @@
             <div class="col-sm-3"></div>
         </div>
 
-        <div id="process"></div>
+        <div id="processDiv" style="margin-top: 20px;"></div>
     </div>
 
     <div class="beforeFooter" id="beforeFooter"></div>
@@ -73,12 +73,12 @@
             </div>
             <div class="row" style="text-align: center;">
                 <span>DFA可视化：<a href="https://github.com/mermaid-js/mermaid" target="blank">mermiad</a> </span>
-                <span>网页使用<a href="https://www.bootcss.com" target="blank">BootStrap</a>布局 </span>
-                <span>使用 <a href="https://jquery.com" target="blank">jQuery</a></span>
+                <span>使用 <a href="https://www.bootcss.com" target="blank">BootStrap</a>、<a href="https://jquery.com" target="blank">jQuery</a></span>
+                <span>By <a href="https://letmefly.xyz" target="blank">LetMeFly</a></span>
             </div>
-            <div class="row" style="text-align: center;">
+            <!-- <div class="row" style="text-align: center;">
                 Copyright 2022 ©<a href="https://letmefly.xyz">LetMeFly</a> all rights reserved.
-            </div>
+            </div> -->
         </div>
     </footer>
 
@@ -87,6 +87,7 @@
         const grammars = grammarChoiceForm.find("input");
         const grammarInput = $("#GrammarInput");
         const stringInput = $("#stringInput");
+        const processDiv = $("#processDiv");
 
         function getChoosedGrammar() {  // 获取选择的语法
             for (var i = 0; i < grammars.length; i++) {
@@ -107,11 +108,53 @@
         }
 
         function analysis() {  // 分析
+            processDiv.empty();
+
             if (!grammarInput.val()) {
                 grammarInput.val(grammarSamples[getChoosedGrammar()].grammar);
             }
-            const NT = getNT(grammarInput.val());
+            const NT = getNTG(grammarInput.val());
             console.log(NT);
+
+            if (NT.error.length) {
+                const errorDiv = document.createElement("div");
+                errorDiv.setAttribute("id", "errorDiv");
+                processDiv.append(errorDiv);
+                const h3 = document.createElement("h3");
+                h3.innerText = "错误列表：";
+                errorDiv.append(h3);
+                const ul = document.createElement("ul");
+                ul.setAttribute("id", "errorUl");
+                ul.setAttribute("class", "list-group");
+                errorDiv.append(ul);
+                NT.error.forEach(e => {
+                    const li = document.createElement("li");
+                    li.setAttribute("class", "list-group-item");
+                    li.innerText = e;
+                    ul.append(li);
+                });
+                return;
+            }
+
+            const formattedGrammarsDiv = document.createElement("div");
+            formattedGrammarsDiv.setAttribute("id", "formattedGrammarsDiv");
+            processDiv.append(formattedGrammarsDiv);
+            const h3 = document.createElement("h3");
+            h3.innerText = "格式化文法规则：";
+            formattedGrammarsDiv.append(h3);
+            const ul = document.createElement("ul");
+            ul.setAttribute("id", "formattedGrammarsUl");
+            ul.setAttribute("class", "list-group");
+            formattedGrammarsDiv.append(ul);
+            NT.formattedGrammars.forEach(e => {
+                const li = document.createElement("li");
+                li.setAttribute("class", "list-group-item");
+                li.innerText = e.N + " ->";
+                e.T.forEach(thisT => {
+                    li.innerText += " " + thisT;
+                });
+                ul.append(li);
+            });
         }
 
         $(() => {  // Onload
