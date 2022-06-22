@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 23:12:30
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-22 16:02:30
+ * @LastEditTime: 2022-06-22 17:58:40
  */
 // LetMeFly Syntax Analysis.js
 const KONG = "ε";
@@ -148,6 +148,11 @@ function rand1newName(name) {
 }
 
 function leftFactoring(NT) {
+    /* 
+        A->L a
+        A-> L b
+        A->L c d a
+    */
     function leftFactoringOnce(NT) {  // 提取左因子，每次只提取一个左因子
         var changed = false;  // 是否修改了
         NT.N.forEach(e => {
@@ -252,3 +257,178 @@ function leftFactoring(NT) {
         }
     }
 }
+
+function ifSameArray(a, b) {
+    if (a.length != b.length)
+        return false;
+    for (var i = 0; i < a.length; i++) {
+        if (a[i] != b[i])
+            return false;
+    }
+    return true;
+}
+
+function ifSameGrammar(a, b) {
+    return a.N == b.N && ifSameArray(a.T, b.T);
+}
+
+function leftRecursion(NT) {
+    /*
+        A-> B
+        B->A a
+    */
+    /*
+        B->A a
+        A -> B
+    */
+    /* 
+        A -> B
+        B->C
+        C-> A a
+    */
+    /*
+        A->B a| A a| c
+        B->B b| A b| d
+    */
+    while (true) {
+        changed = false;
+
+        function leftRecursionOnce(beginWith) {  // 以beginWith开头的非终结符存在左递归
+            function CaiFen() {  // 将所有语法规则分成：[以beginWith开头的且第一个是beginWith的, 以beginWith开头的且第一个不是beginWith的，不以beginWith开头的]
+                const bb = [];
+                const bn = [];
+                const n = [];
+                for (var i = 0; i < NT.formattedGrammars.length; i++) {
+                    const thisGrammar = NT.formattedGrammars[i];
+                    if (thisGrammar.N == beginWith) {
+                        if (thisGrammar.T[0] == beginWith) {
+                            bb.push(thisGrammar);
+                        }
+                        else {
+                            bn.push(thisGrammar);
+                        }
+                    }
+                    else {
+                        n.push(thisGrammar);
+                    }
+                }
+                return [bb, bn, n];
+            }
+            const CaiFenEd = CaiFen();
+            const bb = CaiFenEd[0];
+            const bn = CaiFenEd[1];
+            const n = CaiFenEd[2];
+            if (bn.length) {
+                const newName = rand1newName(beginWith);
+                const newGrammar = {
+                    N: newName,
+                    T: [KONG]
+                };
+                n.push(newGrammar);
+                bb.forEach(e => {
+                    const newGrammar = {
+                        N: newName,
+                        T:[]
+                    };
+                    for (var i = 1; i < e.T.length; i++) {
+                        newGrammar.T.push(e.T[i]);
+                    }
+                    newGrammar.T.push(newName);
+                    n.push(newGrammar);
+                });
+                bn.forEach(e => {
+                    e.T.push(newName);
+                    n.push(e);
+                });
+
+                NT.formattedGrammars = n;
+            }
+            else {  // 全是 A->A a 的形式
+                for (var i = 0; i < bb.length; i++) {
+                    for (var j = 1; j < bb[i].T.length; j++) {
+                        bb[i].T[j - 1] = bb[i].T[j];
+                    }
+                    bb[i].T[bb[i].T.length - 1] = bb[i].N;
+                }
+                NT.formattedGrammars = bb;
+                NT.formattedGrammars.concat(bn);
+                NT.formattedGrammars.concat(n);
+            }
+            NT.formattedGrammars.sort();
+        }
+
+        function union(firstGrammar, secondGrammar) {
+            function CaiFen() {  // 将所有语法拆分为[firstGrammar, secondGrammar, Other]
+                const other = [];
+                NT.formattedGrammars.forEach(e => {
+                    if ((!ifSameGrammar(firstGrammar, e)) && (!ifSameGrammar(secondGrammar, e))) {
+                        other.push(e);
+                    }
+                });
+                return [firstGrammar, secondGrammar, other];
+            }
+            const CaiFenEd = CaiFen();
+            const otherGrammar = CaiFenEd[2];
+            NT.formattedGrammars = otherGrammar;
+            const newGrammar = {
+                N: firstGrammar.N,
+                T: secondGrammar.T
+            };
+            for (var i = 1; i < firstGrammar.T.length; i++) {
+                newGrammar.T.push(firstGrammar.T[i]);
+            }
+            NT.formattedGrammars.push(newGrammar);
+        }
+
+        for (var i = 0; i < NT.formattedGrammars.length; i++) {
+            const firstGrammar = NT.formattedGrammars[i];
+            // console.log("firstGrammar:");
+            // console.log(firstGrammar);
+            // console.log("firstGrammar.T:");
+            // console.log(firstGrammar.T);
+            if (firstGrammar.N == firstGrammar.T[0]) {
+                changed = true;
+                leftRecursionOnce(firstGrammar.N);
+                break;
+            }
+            for (var j = 0; j < i; j++) {
+                const secondGrammar = NT.formattedGrammars[j];
+                if (firstGrammar.T[0] == secondGrammar.N) {
+                    // console.log(firstGrammar);
+                    // console.log(secondGrammar);
+                    union(firstGrammar, secondGrammar);
+                    changed = true;
+                    break;
+                }
+            }
+            if (changed)
+                break;
+        }
+        // console.log("NT.formattedGrammars: ");
+        // console.log(NT.formattedGrammars);
+
+        if (!changed) {
+            function refreshNandT() {
+                NT.formattedGrammars.sort();
+                NT.N = new Set();
+                NT.T = new Set();
+                const NandT = new Set();
+                NT.formattedGrammars.forEach(e => {
+                    NT.N.add(e.N);
+                    e.T.forEach(e2 => {
+                        if (e2 != KONG) {
+                            NandT.add(e2);
+                        }
+                    });
+                });
+                NandT.forEach(e => {
+                    if (!NT.N.has(e)) {
+                        NT.T.add(e);
+                    }
+                });
+            }
+            refreshNandT();
+            return NT;
+        }
+    }
+}  // TODO: A->A死循环

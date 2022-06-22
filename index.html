@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 22:21:32
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-22 16:20:24
+ * @LastEditTime: 2022-06-22 17:59:09
 -->
 <!DOCTYPE html>
 <html>
@@ -206,7 +206,17 @@
             showNT(NT);
 
             // 消除左递归
-            
+            const NTLRed = leftRecursion(NT);
+            const LeftedRecTitleDiv = document.createElement("div");
+            LeftedRecTitleDiv.setAttribute("class", "text-align: center");
+            processDiv.append(LeftedRecTitleDiv);
+            const LeftedRecTitleCenter = document.createElement("center");
+            LeftedRecTitleDiv.append(LeftedRecTitleCenter);
+            const LeftedRecTitleh3 = document.createElement("h3");
+            LeftedRecTitleh3.innerText = "消除左递归";
+            LeftedRecTitleCenter.append(LeftedRecTitleh3);
+            showNT(NTLRed);
+
 
             // 提取左因子
             const NTLefted = leftFactoring(NT);
