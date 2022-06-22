@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 22:21:32
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-22 21:36:19
+ * @LastEditTime: 2022-06-22 22:25:57
 -->
 <!DOCTYPE html>
 <html>
@@ -290,7 +290,7 @@
 
             // LL(1)分析表
             const LL1Table = getLL1Table(NT, First, Follow);
-            console.log(LL1Table);
+            // console.log(LL1Table);
             if (Array.isArray(LL1Table)) {  // 冲突！！error
                 console.log(LL1Table);
                 alert("冲突!，详情请见控制台，格式[[N, T, LL1Table[N][T], thisGrammar], ..]");
@@ -350,8 +350,132 @@
                 tr.append(Dollar);
             });
             
+            // LL1分析栈
+            if (!$("#stringInput").val()) {
+                $("#stringInput").val($("#stringInput")[0].getAttribute("placeholder"));
+            }
+            // LL1stack(table, $("#stringInput").val());
+            const StackDivCenter = document.createElement("div");
+            StackDivCenter.setAttribute("class", "text-align: center");
+            processDiv.append(StackDivCenter);
+            const StackTableTitle = document.createElement("h3");
+            StackTableTitle.innerText = "LL1分析栈";
+            StackDivCenter.append(StackTableTitle);
+            const StackTable = document.createElement("table");
+            StackTable.setAttribute("class", "table");
+            processDiv.append(StackTable);
+            const StackHead = document.createElement("thead");
+            StackTable.append(StackHead);
+            StackHead.innerHTML = "<tr><th>分析栈</th><th>输入</th><th>动作</th></tr>";
+            const tbodyStack = document.createElement("tbody");
+            StackTable.append(tbodyStack);
 
-            
+            function getFirstN() {  // 获取最初的非终结符  // TODO: 和LSA重复
+                let isFirst = true;
+                let result;
+                NT.N.forEach(e => {
+                    if (isFirst) {
+                        result = e;
+                        isFirst = false;
+                    }
+                });
+                return result;
+            }
+            function insert1Line(stack1, stack2, action) {
+                const tr = document.createElement("tr");
+                tbodyStack.append(tr);
+                const td1 = document.createElement("td");
+                tr.append(td1)
+                for (var i = stack1.length - 1; i >= 0; i--) {
+                    td1.innerText += stack1[i];
+                }
+                td1.innerText += "$";
+                const td2 = document.createElement("td");
+                for (var i = stack2.length - 1; i >= 0; i--) {
+                    td2.innerText += stack2[i];
+                }
+                td2.innerText += "$";
+                tr.append(td2)
+                const td3 = document.createElement("td");
+                tr.append(td3)
+                td3.innerText = action;
+            }
+            const stackAna = [];
+            stackAna.push(getFirstN());
+            const stackInput = [];
+            const stringInputVal = $("#stringInput").val();
+            const stringInputList = [];
+            const stringInputValSplited = stringInputVal.split(" ");
+            stringInputValSplited.forEach(e => {
+                if (e)
+                    stringInputList.push(e);
+            });
+            for (var i = stringInputList.length - 1; i >= 0; i--) {
+                stackInput.push(stringInputList[i]);
+            }
+            function accepted(stack1, stack2) {
+                if (stack1.length != 1 || stack2.length != 1)
+                    return false;
+                return stack1[0] == "$" && stack1[1] == "$";
+            }
+            var times = 0;
+            while (!accepted(stackAna, stackInput)) {
+                const S1Copy = JSON.parse(JSON.stringify(stackAna));
+                const S2Copy = JSON.parse(JSON.stringify(stackInput));
+                times++;
+                if (times > 100)
+                    break;
+                var action = "22";
+                var exit = false;
+                if (stackAna.length < 1 || stackInput.length < 1) {
+                    if (stackAna.length == 0 && stackInput.length == 0) {
+                        action = "接受！！";
+                        exit = true;
+                    }
+                    else {
+                        action = "错误！有栈为空";
+                        exit = true;
+                    }
+                }
+                else {
+                    const FT = stackAna.pop();
+                    const IT = stackInput.pop();
+                    try {
+                        if (FT == IT) {
+                            action = "匹配";
+                        }
+                        else {
+                            const grammar = LL1Table[FT][IT];
+                            if (!grammar) {
+                                action = "LL1表[" + FT + "][" + IT + "]为空！";
+                                exit = true;
+                            }
+                            else {
+                                action = grammar.N + " -> ";
+                                grammar.T.forEach(e => {
+                                    action += e + " ";
+                                });
+                                if (grammar.T.length == 1 && grammar.T[0] == KONG) {
+
+                                }
+                                else {
+                                    for (var i = grammar.T.length - 1; i >= 0; i--) {
+                                        stackAna.push(grammar.T[i]);
+                                    }
+                                }
+                                stackInput.push(IT);
+                            }
+                        }
+                    }
+                    catch {
+                        action = "错误！";
+                        exit = true;
+                    }
+                }
+                insert1Line(S1Copy, S2Copy, action);
+                if (exit)
+                    break;
+            }
             
         }
 

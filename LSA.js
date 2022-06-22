@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 23:12:30
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-22 21:19:20
+ * @LastEditTime: 2022-06-22 21:47:32
  */
 // LetMeFly Syntax Analysis.js
 const KONG = "ε";
@@ -80,7 +80,7 @@ function getNTG(grammars) {  // 获取终结符和非终结符、格式化后的
         let N;
         frontSplited.forEach(e => {
             if (e) {
-                if (N)  {
+                if (N) {
                     NT.error.push("Error: 文法规则第 " + lineNum + " 行，“->”左侧“" + front + "”包含不只一个非终结符");
                 }
                 else {
@@ -145,7 +145,7 @@ function getNTG(grammars) {  // 获取终结符和非终结符、格式化后的
 }
 
 function rand1newName(name) {
-    return name + Math.floor((Math.random()*1000000)+1);
+    return name + Math.floor((Math.random() * 1000000) + 1);
 }
 
 function leftFactoring(NT) {
@@ -162,7 +162,7 @@ function leftFactoring(NT) {
                 // console.log(e2);
                 if (e2.N == e) {
                     const firstOfRight = e2.T[0];
-                    if (firstOfRight2grammar[firstOfRight]){
+                    if (firstOfRight2grammar[firstOfRight]) {
                         firstOfRight2grammar[firstOfRight].push(e2);
                     }
                     else {
@@ -278,7 +278,7 @@ function ifSameSet(a, b) {
         let result = true;
         a.forEach(e => {
             if (!b.has(e))
-            result = false;
+                result = false;
         });
         return result;
     }
@@ -349,7 +349,7 @@ function leftRecursion(NT) {
                 bb.forEach(e => {
                     const newGrammar = {
                         N: newName,
-                        T:[]
+                        T: []
                     };
                     for (var i = 1; i < e.T.length; i++) {
                         newGrammar.T.push(e.T[i]);
@@ -634,11 +634,10 @@ function getFollow(NT, First) {
                 }
             }
         });
-        
+
         if (ifSameFirst(Follow, second))
             return Follow;
         Follow = second;
-        // break;  // FIXME: breaked;
     }
 }
 
@@ -685,7 +684,6 @@ function getLL1Table(NT, First, Follow) {
                 fillTable(front, firstBackElement, thisGrammar);
             }
             else {
-                console.log("firstBackElement: ", firstBackElement);
                 First[firstBackElement].forEach(back => {
                     fillTable(front, back, thisGrammar);
                 });
@@ -696,4 +694,41 @@ function getLL1Table(NT, First, Follow) {
     if (errorList.length)
         return errorList;
     return LL1Table;
+}
+
+function LL1stack(table, string) {
+
+}
+
+function Stack() {
+    // 栈元素
+    this.items = [];
+    //1.入栈
+    Stack.prototype.push = (element) => {
+        this.items.push(element);
+    }
+    // 2.pop删除栈顶元素,并返回该元素
+    Stack.prototype.pop = () => {
+        return this.items.pop(); //pop方法删除最后一个元素,并返回删除的该值
+    }
+    // 3.取出栈顶元素
+    Stack.prototype.peek = () => {
+        return this.items[this.items.length - 1]
+    }
+    // 4.判断栈是否为空
+    Stack.prototype.isEmpty = () => {
+        return this.items.length === 0
+    }
+    // 5.获取栈的个数
+    Stack.prototype.size = () => {
+        return this.items.length;
+    }
+    // 6.输出栈数据,希望这种形式: 20 10 100
+    Stack.prototype.toString = () => {
+        let Str = ''
+        for (let i of this.items) {
+            Str += i + ' ';
+        }
+        return Str
+    }
 }
