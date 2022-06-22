@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 22:21:32
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-22 22:41:11
+ * @LastEditTime: 2022-06-22 22:45:26
 -->
 <!DOCTYPE html>
 <html>
@@ -10,7 +10,7 @@
 <head>
     <title>语法分析</title>
     <meta charset="utf-8">
-    <!-- <script src="https://letmefly.xyz/Links/Common.js"></script> -->
+    <script src="https://letmefly.xyz/Links/Common.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
     <script src="/static/js/jquery.min.js"></script>
@@ -109,6 +109,10 @@
 
         function analysis() {  // 分析
             processDiv.empty();
+
+            if (getChoosedGrammar() != "LL1") {
+                alert("待开发！当前仅支持LL(1)，当前" + getChoosedGrammar() + "也会按LL(1)的方法进行分析");
+            }
 
             if (!grammarInput.val()) {
                 grammarInput.val(grammarSamples[getChoosedGrammar()].grammar);
