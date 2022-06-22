@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 23:12:30
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-22 17:58:40
+ * @LastEditTime: 2022-06-22 19:52:29
  */
 // LetMeFly Syntax Analysis.js
 const KONG = "ε";
@@ -272,6 +272,26 @@ function ifSameGrammar(a, b) {
     return a.N == b.N && ifSameArray(a.T, b.T);
 }
 
+function ifSameSet(a, b) {
+    function aAllinB(a, b) {
+        let result = true;
+        a.forEach(e => {
+            if (!b.has(e))
+            result = false;
+        });
+        return result;
+    }
+    return aAllinB(a, b) && aAllinB(b, a);
+}
+
+function ifSameFirst(a, b) {  // 前提是key全部相同
+    for (key in a) {
+        if (!ifSameSet(a[key], b[key]))
+            return false;
+    }
+    return true;
+}
+
 function leftRecursion(NT) {
     /*
         A-> B
@@ -432,3 +452,74 @@ function leftRecursion(NT) {
         }
     }
 }  // TODO: A->A死循环
+
+function getFirst(NT) {
+    /*
+        expr -> expr addop term|term
+        addop -> +|-
+        term -> term mulop factor | factor
+        mulop ->*
+        factor ->( expr ) | number
+    */
+    /*
+        statement -> if-stmt | other
+        if-stmt -> if ( exp ) statement else-part
+        else-part -> else statement | ε
+        exp -> 0 | 1
+    */
+    /*
+        stmt-sequence ->stmt stmt-seq’
+        stmt-seq’->; stmt-sequence|ε
+        stmt->s
+    */
+    var First = {};
+    NT.N.forEach(e => {
+        First[e] = new Set();
+    });
+    while (true) {
+        var second = {};
+        NT.N.forEach(e => {
+            second[e] = new Set();
+        });
+        NT.formattedGrammars.forEach(thisGrammar => {
+            // all have kong
+            allKong = true;
+            for (var i = 0; i < thisGrammar.T.length; i++) {
+                const thisNorT = thisGrammar.T[i];
+                if (thisNorT == KONG)
+                    continue;
+                if (NT.T.has(thisNorT)) {
+                    allKong = false;
+                    break;
+                }
+                if (!First[thisNorT].has(KONG)) {
+                    allKong = false;
+                    break;
+                }
+            }
+            if (allKong)
+                second[thisGrammar.N].add(KONG);
+
+            for (var i = 0; i < thisGrammar.T.length; i++) {
+                const thisNorT = thisGrammar.T[i];
+                if (thisNorT == KONG)
+                    continue;
+                if (NT.T.has(thisNorT)) {
+                    second[thisGrammar.N].add(thisNorT);
+                    break;
+                }
+                First[thisNorT].forEach(thisFirst => {
+                    if (thisFirst != KONG) {
+                        second[thisGrammar.N].add(thisFirst);
+                    }
+                });
+                if (!First[thisNorT].has(KONG))
+                    break;
+            }
+        });
+        if (ifSameFirst(First, second))
+            return First;
+        First = second;
+        // break;  // FIXME: breaked;
+    }
+}

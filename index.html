@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 22:21:32
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-22 17:59:09
+ * @LastEditTime: 2022-06-22 20:06:40
 -->
 <!DOCTYPE html>
 <html>
@@ -229,6 +229,49 @@
             LeftedTitleh3.innerText = "提取左因子";
             LeftedTitleCenter.append(LeftedTitleh3);
             showNT(NTLefted);
+
+            // First Follow集合
+            const First = getFirst(NT);
+            const FirstFollowRowDiv = document.createElement("div");
+            FirstFollowRowDiv.setAttribute("class", "row");
+            processDiv.append(FirstFollowRowDiv);
+            const FirstDiv = document.createElement("div");
+            FirstDiv.setAttribute("class", "col-sm-6");
+            FirstFollowRowDiv.append(FirstDiv);
+            const FirstTitle = document.createElement("h3");
+            FirstTitle.innerText = "First集合";
+            FirstDiv.append(FirstTitle);
+            const FirstUl = document.createElement("ul");
+            FirstUl.setAttribute("class", "list-group");
+            FirstDiv.append(FirstUl);
+            for (key in First) {
+                const li = document.createElement("li");
+                li.setAttribute("class", "list-group-item");
+                FirstUl.append(li);
+                li.innerText = "First(" + key + ") = {";
+                firstElement = true;
+                First[key].forEach(thisElement => {
+                    if (firstElement)
+                        firstElement = false;
+                    else
+                        li.innerText += ", ";  // BootStrap把空格吞了
+                    li.innerText += thisElement;
+                });
+                li.innerText += "}";
+            }
+
+
+            // Follow集合
+            const FollowDiv = document.createElement("div");
+            FollowDiv.setAttribute("class", "col-sm-6");
+            FirstFollowRowDiv.append(FollowDiv);
+            const FollowTitle = document.createElement("h3");
+            FollowTitle.innerText = "Follow集合";
+            FollowDiv.append(FollowTitle);
+            const FollowUl = document.createElement("ul");
+            FollowUl.setAttribute("class", "list-group");
+            FollowDiv.append(FollowUl);
+            
         }
 
         $(() => {  // Onload
