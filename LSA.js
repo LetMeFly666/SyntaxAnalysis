@@ -2,10 +2,11 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 23:12:30
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-22 19:52:29
+ * @LastEditTime: 2022-06-22 20:48:31
  */
 // LetMeFly Syntax Analysis.js
 const KONG = "ε";
+const DOLLAR = "$";  // TODO: DOLLAR不能作为终结符
 
 const grammarSamples = {  // 某种文法对应的样例
     LL1: {
@@ -520,6 +521,125 @@ function getFirst(NT) {
         if (ifSameFirst(First, second))
             return First;
         First = second;
+    }
+}
+
+function getFollow(NT, First) {
+    /*
+        expr -> expr addop term
+        expr -> term
+        addop -> +
+        addop -> -
+        term -> term mulop factor
+        term -> factor
+        mulop ->*
+        factor ->( expr )
+        factor ->number
+    */
+    /*
+        statement -> if-stmt
+        statement -> other
+        if-stmt -> if ( exp ) statement else-part
+        else-part -> else statement
+        else-part ->ε
+        exp -> 0
+        exp -> 1
+    */
+    /*
+        stmt-sequence ->stmt stmt-seq’
+        stmt-seq’->; stmt-sequence
+        stmt-seq’->ε
+        stmt->s
+    */
+    /*
+        E->T E’
+        E’->+ T E’|ε
+        T->F T’
+        T’->* F T’|ε
+        F->( E )|i
+    */
+    function getFirstN() {  // 获取最初的非终结符  // TODO: 检查是否有BUG
+        let isFirst = true;
+        let result;
+        NT.N.forEach(e => {
+            if (isFirst) {
+                result = e;
+                isFirst = false;
+            }
+        });
+        return result;
+    }
+    var Follow = {};
+    NT.N.forEach(e => {
+        Follow[e] = new Set();
+    });
+    const firstFirstN = getFirstN();
+    Follow[firstFirstN].add(DOLLAR);
+    while (true) {
+        var second = {};
+        NT.N.forEach(e => {
+            second[e] = new Set();
+        });
+        second[firstFirstN].add(DOLLAR);
+
+        NT.formattedGrammars.forEach(thisGrammar => {
+            const front = thisGrammar.N;
+            const backList = thisGrammar.T;
+            function allKong(list, th) {
+                for (; th < list.length; th++) {
+                    if (NT.T.has(list[th]))
+                        return false;
+                    if (list[th] == KONG)
+                        continue;
+                    if (!First[list[th]].has(KONG))
+                        return false;
+                }
+                return true;
+            }
+            function addFollow(a, b) {  // assert(b, 非终结符)
+                Follow[b].forEach(e => {  // assert(e, 非KONG)
+                    second[a].add(e);
+                });
+            }
+            function addFirst(a, b) {
+                First[b].forEach(e => {
+                    if (e != KONG) {
+                        second[a].add(e);
+                    }
+                });
+            }
+            for (var i = 0; i < backList.length; i++) {
+                if (NT.N.has(backList[i])) {  // 是非终结符
+                    if (i == backList.length - 1 || allKong(backList, i + 1)) {  // 后面全空
+                        addFollow(backList[i], front);  // 把front的Follow加入到backList[i]的Follow中
+                    }
+                    for (var addTo = i + 1; addTo < backList.length; addTo++) {
+                        const thisNorT = backList[addTo];
+                        if (thisNorT == KONG)
+                            continue;
+                        if (NT.T.has(thisNorT)) {
+                            second[backList[i]].add(thisNorT);
+                        }
+                        else {
+                            addFirst(backList[i], thisNorT);
+                        }
+
+                        if (thisNorT == KONG || NT.T.has(thisNorT)) {
+                            break;
+                        }
+                        if (!First[thisNorT].has(KONG)) {
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+        console.log("Follow: ");
+        console.log(second);
+        
+        if (ifSameFirst(Follow, second))
+            return Follow;
+        Follow = second;
         // break;  // FIXME: breaked;
     }
 }

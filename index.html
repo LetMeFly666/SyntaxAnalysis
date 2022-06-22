@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 22:21:32
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-22 20:06:40
+ * @LastEditTime: 2022-06-22 20:49:31
 -->
 <!DOCTYPE html>
 <html>
@@ -262,6 +262,7 @@
 
 
             // Follow集合
+            const Follow = getFollow(NT, First);
             const FollowDiv = document.createElement("div");
             FollowDiv.setAttribute("class", "col-sm-6");
             FirstFollowRowDiv.append(FollowDiv);
@@ -271,6 +272,21 @@
             const FollowUl = document.createElement("ul");
             FollowUl.setAttribute("class", "list-group");
             FollowDiv.append(FollowUl);
+            for (key in Follow) {
+                const li = document.createElement("li");
+                li.setAttribute("class", "list-group-item");
+                FollowUl.append(li);
+                li.innerText = "Follow(" + key + ") = {";
+                firstElement = true;
+                Follow[key].forEach(thisElement => {
+                    if (firstElement)
+                        firstElement = false;
+                    else
+                        li.innerText += ", ";  // BootStrap把空格吞了
+                    li.innerText += thisElement;
+                });
+                li.innerText += "}";
+            }
             
         }
 
