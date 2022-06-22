@@ -2,9 +2,10 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 23:12:30
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-21 13:55:21
+ * @LastEditTime: 2022-06-22 16:02:30
  */
 // LetMeFly Syntax Analysis.js
+const KONG = "ε";
 
 const grammarSamples = {  // 某种文法对应的样例
     LL1: {
@@ -140,4 +141,114 @@ function getNTG(grammars) {  // 获取终结符和非终结符、格式化后的
     }
 
     return NT;
+}
+
+function rand1newName(name) {
+    return name + Math.floor((Math.random()*1000000)+1);
+}
+
+function leftFactoring(NT) {
+    function leftFactoringOnce(NT) {  // 提取左因子，每次只提取一个左因子
+        var changed = false;  // 是否修改了
+        NT.N.forEach(e => {
+            const firstOfRight2grammar = {};
+            NT.formattedGrammars.forEach(e2 => {
+                // console.log(e2);
+                if (e2.N == e) {
+                    const firstOfRight = e2.T[0];
+                    if (firstOfRight2grammar[firstOfRight]){
+                        firstOfRight2grammar[firstOfRight].push(e2);
+                    }
+                    else {
+                        firstOfRight2grammar[firstOfRight] = [e2];
+                    }
+                }
+            });
+            for (key in firstOfRight2grammar) {
+                if (firstOfRight2grammar[key].length > 1) {
+                    const newN = rand1newName(e);
+                    NT.N.add(newN);
+                    changed = true;
+                    const NTnewGrammars = [];
+                    const thisNewGrammar = {
+                        N: e,
+                        T: [newN]
+                    };
+                    NTnewGrammars.push(thisNewGrammar);
+                    firstOfRight2grammar[key].forEach(lefted => {
+                        // console.log(lefted);
+                        const thisNewGrammar = {
+                            N: newN,
+                            T: []
+                        };
+                        if (lefted.T.length == 1) {
+                            thisNewGrammar.T.push(KONG);
+                        }
+                        else {
+                            for (var i = 1; i < lefted.T.length; i++) {
+                                thisNewGrammar.T.push(lefted.T[i]);
+                            }
+                        }
+                        NTnewGrammars.push(thisNewGrammar);
+                    });
+
+                    function pushGrammarNotinB(A, B) {
+
+                        function ifThisAInB(thisA) {
+                            function ifEqual(a, b) {
+                                if (a.length != b.length)
+                                    return false;
+                                for (var i = 0; i < a.length; i++) {
+                                    if (a[i] != b[i]) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                            for (var i = 0; i < B.length; i++) {
+                                if (thisA.N != B[i].N)
+                                    continue;
+                                if (ifEqual(thisA.T, B[i].T)) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }
+                        A.forEach(thisA => {
+                            if (!ifThisAInB(thisA)) {
+                                NTnewGrammars.push(thisA);
+                            }
+                        });
+                    }
+
+                    pushGrammarNotinB(NT.formattedGrammars, firstOfRight2grammar[key]);
+
+                    NT.formattedGrammars = NTnewGrammars;
+                }
+            }
+        });
+        NT.formattedGrammars.sort();
+        return [NT, changed];
+    }
+    // while (true) {
+    //     const newNT = leftFactoringOnce(NT);
+    //     function ifSameNT(newNT, NT) {
+    //         function ifSameArray(a, b) {
+    //             if (a.length != b.length)
+    //                 return false;
+    //             for (var i = 0; i < a.length; )  // 未完待续
+    //         }
+    //     }
+    //     if (ifSameNT(newNT, NT)) {
+    //         return NT;
+    //     }
+    //     NT = newNT;
+    // }
+
+    while (true) {
+        const result = leftFactoringOnce(NT);
+        if (!result[1]) {  // changed = false
+            return result[0];
+        }
+    }
 }

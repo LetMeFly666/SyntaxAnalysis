@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 22:21:32
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-21 13:55:55
+ * @LastEditTime: 2022-06-22 16:03:31
 -->
 <!DOCTYPE html>
 <html>
@@ -114,7 +114,7 @@
                 grammarInput.val(grammarSamples[getChoosedGrammar()].grammar);
             }
             const NT = getNTG(grammarInput.val());
-            console.log(NT);
+            // console.log(NT);
 
             if (NT.error.length) {
                 const errorDiv = document.createElement("div");
@@ -155,6 +155,43 @@
                 });
                 ul.append(li);
             });
+
+            const TDiv = document.createElement("div");
+            formattedGrammarsDiv.setAttribute("id", "formattedGrammarsDiv");
+            processDiv.append(TDiv);
+            const h3_2 = document.createElement("h3");
+            h3_2.innerText = "非终结符";
+            formattedGrammarsDiv.append(h3_2);
+            const ul_2 = document.createElement("ul");
+            ul_2.setAttribute("id", "formattedGrammarsUl");
+            ul_2.setAttribute("class", "list-group");
+            formattedGrammarsDiv.append(ul_2);
+            NT.N.forEach(e => {
+                const li = document.createElement("li");
+                li.setAttribute("class", "list-group-item");
+                li.innerText = e;
+                ul_2.append(li);
+            });
+
+            const NDiv = document.createElement("div");
+            formattedGrammarsDiv.setAttribute("id", "formattedGrammarsDiv");
+            processDiv.append(NDiv);
+            const h3_3 = document.createElement("h3");
+            h3_3.innerText = "终结符";
+            formattedGrammarsDiv.append(h3_3);
+            const ul_3 = document.createElement("ul");
+            ul_3.setAttribute("id", "formattedGrammarsUl");
+            ul_3.setAttribute("class", "list-group");
+            formattedGrammarsDiv.append(ul_3);
+            NT.T.forEach(e => {
+                const li = document.createElement("li");
+                li.setAttribute("class", "list-group-item");
+                li.innerText = e;
+                ul_3.append(li);
+            });
+
+            // 提取左因子
+            const NTLefted = leftFactoring(NT);
         }
 
         $(() => {  // Onload
