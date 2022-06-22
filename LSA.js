@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 23:12:30
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-22 20:48:31
+ * @LastEditTime: 2022-06-22 21:19:20
  */
 // LetMeFly Syntax Analysis.js
 const KONG = "ε";
@@ -634,12 +634,66 @@ function getFollow(NT, First) {
                 }
             }
         });
-        console.log("Follow: ");
-        console.log(second);
         
         if (ifSameFirst(Follow, second))
             return Follow;
         Follow = second;
         // break;  // FIXME: breaked;
     }
+}
+
+function getLL1Table(NT, First, Follow) {
+    const LL1Table = {};
+    const errorList = [];  // [[N, T, LL1Table[N][T], thisGrammar], ..]
+    NT.N.forEach(thisN => {
+        LL1Table[thisN] = {};
+        NT.T.forEach(thisT => {
+            LL1Table[thisN][thisT] = false;
+        });
+        LL1Table[thisN][DOLLAR] = false;
+    });
+
+    NT.formattedGrammars.forEach(thisGrammar => {
+        const front = thisGrammar.N;
+        function allKong(list) {
+            for (var i = 0; i < list.length; i++) {
+                if (list[i] == KONG)
+                    continue;
+                if (NT.T.has(list[i]))
+                    return false;
+                if (!First[list[i]].has(KONG))
+                    return false;
+            }
+            return true;
+        }
+        function fillTable(front, back, thisGrammar) {
+            if (LL1Table[front][back]) {
+                errorList.push([front, back, LL1Table[front][back], thisGrammar]);
+            }
+            else {
+                LL1Table[front][back] = thisGrammar;
+            }
+        }
+        if (thisGrammar.N[0] == KONG || allKong(thisGrammar.T)) {
+            Follow[front].forEach(back => {
+                fillTable(front, back, thisGrammar);
+            });
+        }
+        else {
+            const firstBackElement = thisGrammar.T[0];
+            if (NT.T.has(firstBackElement)) {
+                fillTable(front, firstBackElement, thisGrammar);
+            }
+            else {
+                console.log("firstBackElement: ", firstBackElement);
+                First[firstBackElement].forEach(back => {
+                    fillTable(front, back, thisGrammar);
+                });
+            }
+        }
+    });
+
+    if (errorList.length)
+        return errorList;
+    return LL1Table;
 }

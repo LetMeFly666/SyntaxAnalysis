@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 22:21:32
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-22 20:49:31
+ * @LastEditTime: 2022-06-22 21:36:19
 -->
 <!DOCTYPE html>
 <html>
@@ -287,6 +287,71 @@
                 });
                 li.innerText += "}";
             }
+
+            // LL(1)分析表
+            const LL1Table = getLL1Table(NT, First, Follow);
+            console.log(LL1Table);
+            if (Array.isArray(LL1Table)) {  // 冲突！！error
+                console.log(LL1Table);
+                alert("冲突!，详情请见控制台，格式[[N, T, LL1Table[N][T], thisGrammar], ..]");
+                return;
+            }
+
+            const TableTitleCenterDiv = document.createElement("div");
+            TableTitleCenterDiv.setAttribute("class", "text-align: center");
+            processDiv.append(TableTitleCenterDiv);
+            const TableTitle = document.createElement("h3");
+            TableTitle.innerText = "LL1分析表";
+            TableTitleCenterDiv.append(TableTitle);
+            const table = document.createElement("table");
+            table.setAttribute("class", "table");
+            processDiv.append(table);
+            // const caption = document.createElement("caption");
+            // caption.innerText = "LL1分析表";
+            // table.append(caption);
+            const thead = document.createElement("thead");
+            table.append(thead);
+            const tr = document.createElement("tr");
+            thead.append(tr);
+            const firstLeft = document.createElement("th");
+            firstLeft.innerText = "M[N, T]";
+            tr.append(firstLeft);
+            NT.T.forEach(thisT => {
+                const thisTr = document.createElement("th");
+                thisTr.innerText = thisT;
+                tr.append(thisTr);
+            });
+            const Dollar = document.createElement("th");
+            Dollar.innerText = "$";
+            tr.append(Dollar);
+            const tbody = document.createElement("tbody");
+            table.append(tbody);
+            NT.N.forEach(thisN => {
+                const tr = document.createElement("tr");
+                tbody.append(tr);
+                const thisNT = document.createElement("td");
+                thisNT.innerText = thisN;
+                tr.append(thisNT);
+                NT.T.forEach(thisT => {
+                    const thisTr = document.createElement("td");
+                    if (LL1Table[thisN][thisT]) {
+                        thisTr.innerText = LL1Table[thisN][thisT].N + " -> ";
+                        LL1Table[thisN][thisT].T.forEach(e => {
+                            thisTr.innerText += e + " ";
+                        });
+                        
+                    }
+                    tr.append(thisTr);
+                });
+                const Dollar = document.createElement("th");
+                if (LL1Table[thisN]["$"]) {
+                    thisTr.innerText = LL1Table[thisN]["$"];
+                }
+                tr.append(Dollar);
+            });
+            
+
+            
             
         }
 
