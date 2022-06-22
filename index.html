@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2022-06-20 22:21:32
  * @LastEditors: LetMeFly
- * @LastEditTime: 2022-06-22 16:03:31
+ * @LastEditTime: 2022-06-22 16:20:24
 -->
 <!DOCTYPE html>
 <html>
@@ -136,62 +136,89 @@
                 return;
             }
 
-            const formattedGrammarsDiv = document.createElement("div");
-            formattedGrammarsDiv.setAttribute("id", "formattedGrammarsDiv");
-            processDiv.append(formattedGrammarsDiv);
-            const h3 = document.createElement("h3");
-            h3.innerText = "格式化文法规则：";
-            formattedGrammarsDiv.append(h3);
-            const ul = document.createElement("ul");
-            ul.setAttribute("id", "formattedGrammarsUl");
-            ul.setAttribute("class", "list-group");
-            formattedGrammarsDiv.append(ul);
-            NT.formattedGrammars.forEach(e => {
-                const li = document.createElement("li");
-                li.setAttribute("class", "list-group-item");
-                li.innerText = e.N + " ->";
-                e.T.forEach(thisT => {
-                    li.innerText += " " + thisT;
+            function showNT(NT) {
+                const rowDiv = document.createElement("div");
+                rowDiv.setAttribute("class", "row");
+                processDiv.append(rowDiv);
+                // const formattedGrammarsDiv = document.createElement("div");
+                // formattedGrammarsDiv.setAttribute("id", "formattedGrammarsDiv");
+                // rowDiv.append(formattedGrammarsDiv);
+                const divLeft = document.createElement("div");
+                divLeft.setAttribute("class", "col-sm-6");
+                rowDiv.append(divLeft);
+                const h3 = document.createElement("h3");
+                h3.innerText = "格式化文法规则：";
+                divLeft.append(h3);
+                const ul = document.createElement("ul");
+                ul.setAttribute("id", "formattedGrammarsUl");
+                ul.setAttribute("class", "list-group");
+                divLeft.append(ul);
+                NT.formattedGrammars.forEach(e => {
+                    const li = document.createElement("li");
+                    li.setAttribute("class", "list-group-item");
+                    li.innerText = e.N + " ->";
+                    e.T.forEach(thisT => {
+                        li.innerText += " " + thisT;
+                    });
+                    ul.append(li);
                 });
-                ul.append(li);
-            });
 
-            const TDiv = document.createElement("div");
-            formattedGrammarsDiv.setAttribute("id", "formattedGrammarsDiv");
-            processDiv.append(TDiv);
-            const h3_2 = document.createElement("h3");
-            h3_2.innerText = "非终结符";
-            formattedGrammarsDiv.append(h3_2);
-            const ul_2 = document.createElement("ul");
-            ul_2.setAttribute("id", "formattedGrammarsUl");
-            ul_2.setAttribute("class", "list-group");
-            formattedGrammarsDiv.append(ul_2);
-            NT.N.forEach(e => {
-                const li = document.createElement("li");
-                li.setAttribute("class", "list-group-item");
-                li.innerText = e;
-                ul_2.append(li);
-            });
+                const divMiddle = document.createElement("div");
+                divMiddle.setAttribute("class", "col-sm-3");
+                rowDiv.append(divMiddle);
+                const TDiv = document.createElement("div");
+                divMiddle.append(TDiv);
+                const h3_2 = document.createElement("h3");
+                h3_2.innerText = "非终结符";
+                TDiv.append(h3_2);
+                const ul_2 = document.createElement("ul");
+                ul_2.setAttribute("id", "formattedGrammarsUl");
+                ul_2.setAttribute("class", "list-group");
+                TDiv.append(ul_2);
+                NT.N.forEach(e => {
+                    const li = document.createElement("li");
+                    li.setAttribute("class", "list-group-item");
+                    li.innerText = e;
+                    ul_2.append(li);
+                });
 
-            const NDiv = document.createElement("div");
-            formattedGrammarsDiv.setAttribute("id", "formattedGrammarsDiv");
-            processDiv.append(NDiv);
-            const h3_3 = document.createElement("h3");
-            h3_3.innerText = "终结符";
-            formattedGrammarsDiv.append(h3_3);
-            const ul_3 = document.createElement("ul");
-            ul_3.setAttribute("id", "formattedGrammarsUl");
-            ul_3.setAttribute("class", "list-group");
-            formattedGrammarsDiv.append(ul_3);
-            NT.T.forEach(e => {
-                const li = document.createElement("li");
-                li.setAttribute("class", "list-group-item");
-                li.innerText = e;
-                ul_3.append(li);
-            });
+                const divRight = document.createElement("div");
+                divRight.setAttribute("class", "col-sm-3");
+                rowDiv.append(divRight);
+                const NDiv = document.createElement("div");
+                // divRight.setAttribute("id", "formattedGrammarsDiv");
+                processDiv.append(NDiv);
+                const h3_3 = document.createElement("h3");
+                h3_3.innerText = "终结符";
+                divRight.append(h3_3);
+                const ul_3 = document.createElement("ul");
+                ul_3.setAttribute("id", "formattedGrammarsUl");
+                ul_3.setAttribute("class", "list-group");
+                divRight.append(ul_3);
+                NT.T.forEach(e => {
+                    const li = document.createElement("li");
+                    li.setAttribute("class", "list-group-item");
+                    li.innerText = e;
+                    ul_3.append(li);
+                });
+            }
+
+            showNT(NT);
+
+            // 消除左递归
+            
 
             // 提取左因子
             const NTLefted = leftFactoring(NT);
+            const LeftedTitleDiv = document.createElement("div");
+            LeftedTitleDiv.setAttribute("class", "text-align: center");
+            processDiv.append(LeftedTitleDiv);
+            const LeftedTitleCenter = document.createElement("center");
+            LeftedTitleDiv.append(LeftedTitleCenter);
+            const LeftedTitleh3 = document.createElement("h3");
+            LeftedTitleh3.innerText = "提取左因子";
+            LeftedTitleCenter.append(LeftedTitleh3);
+            showNT(NTLefted);
         }
 
         $(() => {  // Onload
